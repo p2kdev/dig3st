@@ -1,0 +1,76 @@
+{
+	items = (
+		{
+			cell = PSSwitchCell;
+			cellClass = DigestSwitch;
+			cellSubtitleText = "Requires a Respring";
+			default = 0;
+			defaults = "com.uncore.dig3st";
+			key = enabled;
+			label = "Enable Tweak";
+			systemIcon = "power";
+			set = "setTweakEnabled:specifier:";
+		},
+		{
+			cell = PSGroupCell;
+			label = "Settings";
+		}, 
+		{
+			cell = PSLinkCell;
+			cellClass = DigestSubtitleLinkCell;
+			cellSubtitleText = "Change the tweak's settings";
+			isController = 1;
+			detail = DigestSettingsController;
+			label = "Settings";
+			systemIcon = "gear";
+		},
+		{
+			cell = PSLinkCell;
+			cellClass = DigestSubtitleLinkCell;
+			cellSubtitleText = "Disable or enable specific apps";
+			isController = 1;
+			detail = DigestAppSelectController;
+			label = "Enabled Apps";
+			systemIcon = "ellipsis";
+		},
+		{
+			cell = PSButtonCell;
+			cellClass = DigestButton;
+			action = resetSettings;
+			label = "Reset Settings";
+			confirmation = {
+				title = "Reset Settings";
+				prompt = "Reset all settings to their default value.\nThis action cannot be undone.";
+				cancelTitle = "Cancel";
+			};
+			isDestructive = 1;
+			systemIcon = "gobackward";
+		},
+		{
+			cell = PSGroupCell;
+			label = "Developer";
+		},
+		{
+			cell = PSButtonCell;
+			cellClass = DigestButton;
+			action = yt;
+			label = "My YouTube Channel";
+			systemIcon = "play.rectangle";
+		},
+		{
+			cell = PSButtonCell;
+			cellClass = DigestButton;
+			action = twitter;
+			label = "Follow on X";
+			systemIcon = "person.crop.circle.badge.plus";
+		},
+		{
+			cell = PSButtonCell;
+			cellClass = DigestButton;
+			label = "Donate";
+			action = "donate";
+			systemIcon = "heart";
+		},
+	);
+	title = "";
+}

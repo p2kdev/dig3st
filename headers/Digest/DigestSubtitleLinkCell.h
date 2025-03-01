@@ -1,0 +1,2 @@
+@interface DigestSubtitleLinkCell : PSTableCell
+@end

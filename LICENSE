@@ -1,0 +1,28 @@
+Custom License Agreement
+
+Copyright (c) 2025 Uncore
+
+Derived works refers to any software product created using this Software, including but not limited to binaries, packages, shared libraries.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to fork, modify, and build from the source, subject to the following conditions:
+
+1. No Redistribution
+   The Software, whether in its original form or modified, may not be distributed, shared, sublicensed, or sold in any form. This restriction applies not only to the source code but also to derived works of the Software.
+2. Non-Commercial Use Only
+   The Software and derived works of the Software may only be used for personal, educational, or non-commercial purposes. Any commercial use, including but not limited to selling, licensing, or incorporating the Software and any kind of derived works of the Software into commercial products, is strictly prohibited.
+3. Attribution Requirement
+   If any portion of the Software's code is used in another project, proper credit must be given to the original author(s) and contributor(s). This includes a notice in the source code and, if applicable, within user-facing documentation or interfaces.
+4. Modification and Forking
+   Users are permitted to fork, modify, and build from the source for personal or internal use. Any modified versions and derived works must have the this license and adhere to the same restrictions, including no redistribution and non-commercial use.
+5. Disclaimer of Warranty
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+   SOFTWARE.
+
+By using the Software, you agree to abide by these terms. If you do not agree, you may not use, modify, or fork the Software.
+
+The above copyright notice and this permission notice shall be included in all copies and derive works or substantial portions of the Software.

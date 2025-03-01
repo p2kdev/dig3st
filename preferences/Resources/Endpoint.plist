@@ -1,0 +1,38 @@
+{
+	items = (
+		{
+			cell = PSGroupCell;
+			label = "Details";
+		}, 
+		{
+			cell = PSEditTextCell;
+			label = "Label";
+            key = label;
+			placeholder = "main";
+			noAutoCorrect = true; 
+		},
+        {
+			cell = PSEditTextCell;
+			label = "API key";
+            key = apiKey;
+			placeholder = "Your API key";
+			noAutoCorrect = true; 
+		},
+        {
+			cell = PSEditTextCell;
+			label = "Model";
+            key = model;
+			placeholder = "gpt-4o";
+			noAutoCorrect = true; 
+        },
+        {
+			cell = PSEditTextCell;
+			label = "URL";
+            key = url;
+			noAutoCorrect = true; 
+			isURL = true;
+			placeholder = "https://api.openai.com/v1";
+        },
+	);
+	title = "Endpoint";
+}

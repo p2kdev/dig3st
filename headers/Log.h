@@ -1,0 +1,1 @@
+#define NSLog(fmt, ...) NSLog((@"[dig3st] " fmt), ##__VA_ARGS__)

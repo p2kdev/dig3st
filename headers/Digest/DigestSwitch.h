@@ -1,0 +1,2 @@
+@interface DigestSwitch : PSSubtitleSwitchTableCell
+@end

@@ -1,0 +1,9 @@
+Package: com.uncore.dig3st
+Name: dig3st
+Version: 1.0.0
+Architecture: iphoneos-arm
+Description: Free tweak to summarize your notifications using any Openai endpoint, fully customizable.
+Maintainer: uncore
+Author: uncore
+Section: Tweaks
+Depends: mobilesubstrate (>= 0.9.5000), preferenceloader (>= 2.2.3)

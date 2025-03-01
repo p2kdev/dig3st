@@ -1,0 +1,1 @@
+void Alert(NSString *title, NSString *message,id controller);

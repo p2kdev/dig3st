@@ -1,0 +1,10 @@
+{
+	entry = {
+		bundle = dig3st;
+		cell = PSLinkCell;
+		detail = DigestRootListController;
+		icon = "icon.png";
+		isController = 1;
+		label = "dig3st";
+	};
+}
