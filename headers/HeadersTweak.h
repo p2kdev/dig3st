@@ -7,6 +7,7 @@
 #import "CheckApiKey.h"
 #import "Digest/UIColor+Digest.h"
 #import "Digest/DigestPrefsManager.h"
+#import "Digest/DigestLogger.h"
 #import "Summarize.h"
 #import "Notification.h"
 #import "OpenAI.h"

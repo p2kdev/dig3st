@@ -10,4 +10,5 @@
 @property(nonatomic, strong) DigestPrefsManager *manager;
 - (instancetype)initWithConfiguration:(Config *)configuration;
 - (void)summarize:(ChatQuery *)query completion:(void (^)(NSString *response))completion;
+- (void)check:(void (^)(BOOL response))completion;
 @end
