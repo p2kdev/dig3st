@@ -21,5 +21,6 @@
 #import "Digest/DigestEndpointsController.h"
 #import "Digest/DigestSwitch.h"
 #import "Digest/UIColor+Digest.h"
+#import "Digest/DigestEditTextCell.h"
 
 #define kDigestColor [UIColor colorWithRed:1 green:0 blue:0 alpha:1.0]

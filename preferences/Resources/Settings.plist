@@ -28,7 +28,7 @@
 		},
 		{
 			cell = PSEditTextCell;
-			label = "AI Prompt";
+			label = "Prompt";
 			placeholder = "Prompt to summarize";
 			key = prompt;
 			defaults = "com.uncore.dig3st";
@@ -36,13 +36,13 @@
 			PostNotification = "com.uncore.dig3st/preferences.changed";
 		},
 		{
-			cell = PSEditTextCell;
-			label = "Min message length";
-			cellSubtitleText = "If the notification text too short";
-			key = minChars;
+			cell = DigestEditTextCell;
+			label = "System Prompt";
+			placeholder = "System prompt";
+			cellSubtitleText = "System prompt to use, leave empty if not needed";
+			key = prompt;
 			defaults = "com.uncore.dig3st";
 			noAutoCorrect = true; 
-			isNumeric = true;
 			PostNotification = "com.uncore.dig3st/preferences.changed";
 		},
 		{
@@ -64,13 +64,42 @@
 			systemIcon = "heart";
 		},
 		{
+			cell = PSLinkCell;
+			cellClass = DigestSubtitleLinkCell;
+			cellSubtitleText = "Change Log level for debugging";
+			detail = DigestLogLevelController;
+			isController = 1;
+			label = "Log Level";
+			systemIcon = "exclamationmark.triangle";
+		},
+		{
 			cell = PSSwitchCell;
 			cellClass = DigestSwitch;
-			cellSubtitleText = "Whether to run checks";
+			cellSubtitleText = "Internal sanity checks";
 			cell = DigestSwitchCell;
-			label = "Run Checks(Experimental)";
-			key = runChecks;
+			label = "Sanity Checks";
+			key = sanityChecks;
 			defaults = "com.uncore.dig3st";
+			PostNotification = "com.uncore.dig3st/preferences.changed";
+		},
+		{
+			cell = PSSwitchCell;
+			cellClass = DigestSwitch;
+			cellSubtitleText = "Checks api every respring";
+			cell = DigestSwitchCell;
+			label = "Check Api(Experimental)";
+			key = apiChecks;
+			defaults = "com.uncore.dig3st";
+			PostNotification = "com.uncore.dig3st/preferences.changed";
+		},
+		{
+			cell = PSEditTextCell;
+			label = "Min message length";
+			cellSubtitleText = "If the notification text too short";
+			key = minChars;
+			defaults = "com.uncore.dig3st";
+			noAutoCorrect = true; 
+			isNumeric = true;
 			PostNotification = "com.uncore.dig3st/preferences.changed";
 		},
 	);
