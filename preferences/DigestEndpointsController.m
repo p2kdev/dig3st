@@ -191,6 +191,7 @@
 }
 
 - (void)handleTap:(UITapGestureRecognizer *)gestureRecognizer {
+    if (self.table.isEditing) return;
     if (gestureRecognizer.state == UIGestureRecognizerStateEnded) {
         CGPoint point = [gestureRecognizer locationInView:self.table];
         NSIndexPath *indexPath = [self.table indexPathForRowAtPoint:point];
