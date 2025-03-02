@@ -47,6 +47,43 @@
     return (NSURL *)[NSURL URLWithString:[url stringByAppendingString:path]];
 }
 
+-(void)check:(void (^)(BOOL response))completion {
+    NSURL *url = [self urlWithPath:@"/chat/completions"];
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
+    [request setHTTPMethod:@"GET"];
+    [request setValue:[NSString stringWithFormat:@"Bearer %@",self.configuration.token] forHTTPHeaderField:@"Authorization"];
+    
+    NSURLSessionDataTask *task = [self.session dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+        if (error) {
+            NSLog(@"Request failed: %@", error.localizedDescription);
+            completion(NO);
+            return;
+        }
+        
+        NSError *jsonError;
+        NSDictionary *jsonResponse = [NSJSONSerialization JSONObjectWithData:data options:0 error:&jsonError];
+        if (jsonError) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                completion(NO);
+            });
+        } else {
+            @try {
+                NSDictionary *result = jsonResponse[@"error"];
+                BOOL isValid = (result == nil);
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    completion(isValid);
+                });
+            } @catch (NSException *e) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    completion(NO);
+                });
+            }
+        }
+    }];
+    
+    [task resume];
+}
+
 -(void)summarize:(ChatQuery*)query completion:(void (^)(NSString *response))completion {
     @try { 
         NSURL *url = [self urlWithPath:@"/chat/completions"];

@@ -20,10 +20,12 @@ static void notificationCallback(CFNotificationCenterRef center, void *observer,
 
     [prefs registerDefaults:@{
         @"enabled": @NO,
+        @"apiChecks": @NO,
+        @"sanityChecks": @YES,
+        @"logLevel": @"1",
         @"prompt" : @"Summarize this text as sort as possible only mention about the content do not go in detail,super simple shorten anything you can (urls,numbers),compromise understandability in favor of keeping it short,only keep keywords,if possible fit it in a max a sentence of 5 words",
-        @"apiUrl": @"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent",
+        @"systemPrompt": @"You are an assistant that summarizes notifications.",
         @"minChars": @"15",
-        @"apiKey": @"AIzaSyDKxKADDHENhe3IcdofAP7ljc6ZolbuinQ",
         //some enabled defaults
         @"com.apple.MobileSMS" : @YES,
         @"com.apple.news" : @YES,

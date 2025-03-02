@@ -54,7 +54,7 @@ BOOL isOkToSummarize(NSString *sectionIdentifier) {
             UIView *seamlessContentView =  [view valueForKey:@"notificationContentView"];
             if (seamlessContentView) {
                 UIImage *image = [[UIImage alloc] initWithData:imgData];
-                // self.image = image;
+                self.image = image;
 
                 NSTextAttachment *attachment = [[NSTextAttachment alloc] init];
                 attachment.image = image;
@@ -88,22 +88,28 @@ BOOL isOkToSummarize(NSString *sectionIdentifier) {
     @try {
         NSString *textContent = [req.content valueForKey:@"message"];
         NSInteger minChars = [[prefsManager objectForKey:@"minChars"] integerValue];
+        DigestLogger *logger = [NSClassFromString(@"DigestLogger") sharedInstance];
+
         BOOL contentToShort = textContent ? textContent.length < minChars  : YES;
         if (contentToShort || !textContent) {
             [req setValue:@(NO) forKey:@"dig3st"];
             return %orig;        
         }
-        NSLog(@"uncor3: en %@", [prefsManager objectForKey:req.sectionIdentifier]);
+        [logger log:[NSString stringWithFormat:@"Notification received bundle identifier is %@",[prefsManager objectForKey:req.sectionIdentifier]] level:LOGLEVEL_VERBOSE];
 
         //checks if user set anything for this bundle identifier
         id _enabled = [prefsManager objectForKey:req.sectionIdentifier];
         //if not then use isOkToSummarize else use the user setting
         BOOL enabled = _enabled != nil ? [_enabled boolValue] : isOkToSummarize(req.sectionIdentifier);
-        NSLog(@"uncor3: enabled %d", enabled);
+
+        [logger log:[NSString stringWithFormat:@"Will summarize notification with bundle identifier %@ ? %@",[prefsManager objectForKey:req.sectionIdentifier],enabled ? @"yes" : @"no"] level:LOGLEVEL_VERBOSE];
         ChatQuery *query = [[ChatQuery alloc] initWithPrompt:textContent model:@"gpt-3.5-turbo"];
+        [logger log:[NSString stringWithFormat:@"ChatQuery has been created with prompt %@",textContent] level:LOGLEVEL_VERBOSE];
+
         if (enabled) {
             [openai summarize:query completion:^(NSString *summary) {
                 if (summary.length > 0) {
+                    [logger log:[NSString stringWithFormat:@"Summary: %@",summary] level:LOGLEVEL_VERBOSE];
                     [req setValue:@(YES) forKey:@"dig3st"];
                     [req setValue:[req.content valueForKey:@"message"] forKey:@"actualMessage"];
                     [req.content setValue:summary forKey:@"message"];
@@ -114,6 +120,7 @@ BOOL isOkToSummarize(NSString *sectionIdentifier) {
                 }
             }];
         } else {
+            [logger log:@"Skipping summarization" level:LOGLEVEL_INFO];
             [req setValue:@(NO) forKey:@"dig3st"];
             %orig(req);
         }
@@ -126,61 +133,84 @@ BOOL isOkToSummarize(NSString *sectionIdentifier) {
 %end
 
 %ctor {
-    @try{
+    @try{    
+        NSLog(@"init");
+        prefsManager = [NSClassFromString(@"DigestPrefsManager") sharedInstance];
+        NSDictionary *prefsDict = [prefsManager dictionaryRepresentation];
+                for (NSString *key in prefsDict) {
+                    NSLog(@"NSUserDefaults key: %@, value: %@ class: %@", key, prefsDict[key],[prefsDict[key] class]);
+                }
+        BOOL enabled = [[prefsManager objectForKey:@"enabled"] boolValue];
+        BOOL apiChecks = [[prefsManager objectForKey:@"apiChecks"] boolValue];
+        BOOL sanityChecks = [[prefsManager objectForKey:@"sanityChecks"] boolValue];
+        DigestLogger *logger = [NSClassFromString(@"DigestLogger") sharedInstance];
+        if (enabled) {
 
-    
-    NSLog(@"init");
-    prefsManager = [NSClassFromString(@"DigestPrefsManager") sharedInstance];
-     NSDictionary *prefsDict = [prefsManager dictionaryRepresentation];
-            for (NSString *key in prefsDict) {
-                NSLog(@"NSUserDefaults key: %@, value: %@ class: %@", key, prefsDict[key],[prefsDict[key] class]);
+            NSString *uuid = [prefsManager objectForKey:@"activeEndpoint"];
+            NSArray *endpoints = [prefsManager objectForKey:@"endpoints"];
+            __block NSDictionary *endpoint;
+
+            if (sanityChecks) {
+                [logger log:@"Running Sanity Checks" level:LOGLEVEL_INFO];
+
+                if (uuid == nil || [uuid isEqualToString:@""]) {
+                    [logger log:@"UUID was empty please try resetting your settings" level:LOGLEVEL_WARNING];
+                    //instantly showing the alert results in a crash so delay it
+                    return dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(20 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                        Alert(@"Internal Error", @"UUID was empty please try resetting your settings and then respring",nil);
+                    });
+                }
+
+                [logger log:@"Identifying the endpoint to use" level:LOGLEVEL_INFO];
+                [endpoints enumerateObjectsUsingBlock:^(NSDictionary *p, NSUInteger idx, BOOL *stop) {
+                    if ([p[@"uuid"] isEqualToString:uuid]) {
+                        endpoint = p;
+                        *stop = YES;
+                    }
+                }];
+
+                [logger log:[NSString stringWithFormat:@"Chosen endpoint is %@",endpoint] level:LOGLEVEL_INFO];
+
+                if (endpoint == nil) {
+                    [logger log:@"Endpoint could not be found" level:LOGLEVEL_WARNING];
+
+                    //instantly showing the alert results in a crash so delay it
+                    return dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(20 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                        Alert(@"Endpoint could not be found", @"Tweak is enabled but the endpoint could not be found. Try resetting the settings and then respring.",nil);
+                    });
+                }
             }
-    if ([[prefsManager objectForKey:@"enabled"] boolValue]) {
+            Config *config = [[Config alloc] initWithEndpoint:endpoint timeoutInterval:@10];
+            [logger log:@"Config has been created" level:LOGLEVEL_VERBOSE];
 
-        // BOOL runChecks = [prefsManager objectForKey:@"runChecks"];
- 
-    
+            openai = [[OpenAI alloc] initWithConfiguration:config];
+            [logger log:@"Openai instance has been created" level:LOGLEVEL_VERBOSE];
 
-        NSString *uuid = [prefsManager objectForKey:@"activeEndpoint"];
-        NSArray *endpoints = [prefsManager objectForKey:@"endpoints"];
-        __block NSDictionary *endpoint;
-        [endpoints enumerateObjectsUsingBlock:^(NSDictionary *p, NSUInteger idx, BOOL *stop) {
-            if ([p[@"uuid"] isEqualToString:uuid]) {
-                endpoint = p;
-                *stop = YES;
+            NSBundle *bundle = [[NSBundle alloc] initWithPath:ROOT_PATH_NS(@"/Library/PreferenceBundles/dig3st.bundle")];
+            NSString *imgFile = [bundle pathForResource:@"arrow" ofType:@"png"];
+
+            if (apiChecks) {
+                [logger log:@"Running API Check" level:LOGLEVEL_INFO];
+                [openai check:^(BOOL success) {
+                    if (!success) {
+                        [logger log:@"API request failed disable Check Api in the settings to skip this check and then respring" level:LOGLEVEL_WARNING];
+                        openai = nil;
+                        //instantly showing the alert results in a crash so delay it
+                        return dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(20 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                            Alert(@"API Error", @"API request failed disable Check Api in the settings to skip this check and then respring",nil);
+                        });
+                    }
+                }];
             }
-        }];
-
-        if (endpoint == nil) {
-            NSLog(@"Endpoint is missing");
-            //instantly showing the alert results in a crash so delay it
-            return dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-                Alert(@"Endpoint is missing", @"Tweak is enabled but the endpoint could not be found. Try resetting the settings and then respring.",nil);
-            });
+            
+            // Config *config = [[Config alloc] initWithToken:apiKey host:@"api.openai.com/v1" port:@443 scheme:@"https" basePath:@"/v1" timeoutInterval:@60];
+            imgData = [[NSData alloc] initWithContentsOfFile:imgFile];
+            [logger log:@"End of ctor block" level:LOGLEVEL_VERBOSE];
+            %init;
+        }else {
+            [logger log:@"End of ctor block, not running (tweak is disabled)" level:LOGLEVEL_WARNING];
         }
-        // NSString *apiKey = endpoint[@"apiKey"];
-
-
-        
-
-        // NSString *apiKey = @"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";
-
-        // if (uuid == nil || [uuid isEqualToString:@""]) {
-        //     NSLog(@"");
-        //     //instantly showing the alert results in a crash so delay it
-        //     return dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        //         Alert(@"API Key is missing", @"Tweak is enabled but API Key is missing. Please enter the API Key in the settings and then respring.",nil);
-        //     });
-        // }
-        Config *config = [[Config alloc] initWithEndpoint:endpoint timeoutInterval:@10];
-        // Config *config = [[Config alloc] initWithToken:apiKey host:@"api.openai.com/v1" port:@443 scheme:@"https" basePath:@"/v1" timeoutInterval:@60];
-        openai = [[OpenAI alloc] initWithConfiguration:config];
-        NSBundle *bundle = [[NSBundle alloc] initWithPath:ROOT_PATH_NS(@"/Library/PreferenceBundles/dig3st.bundle")];
-        NSString *imgFile = [bundle pathForResource:@"arrow" ofType:@"png"];
-        imgData = [[NSData alloc] initWithContentsOfFile:imgFile];
-        %init;
-    }
-        }@catch(NSException *e) {
+    }@catch(NSException *e) {
         NSLog(@"error: %@", e);
     }
 }
