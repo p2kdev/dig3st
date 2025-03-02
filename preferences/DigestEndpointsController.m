@@ -1,10 +1,11 @@
 #import "../headers/HeadersPreferences.h"
 
-@implementation DigestEndpointsController : PSEditableListController
+@implementation DigestEndpointsController
 - (instancetype)init {
     self = [super init];
     if (self) {
         self.manager = [NSClassFromString(@"DigestPrefsManager") sharedInstance];
+        self.logger = [NSClassFromString(@"DigestLogger") sharedInstance];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(update) name:@"com.uncore.dig3st/endpointUpdate" object:nil];
     }
     return self;
@@ -33,7 +34,6 @@
     for (NSDictionary *endpoint in endpoints) {
         NSString *name = [endpoint objectForKey:@"model"];
         NSString *label = [endpoint objectForKey:@"label"];
-        // NSString *key = [NSString stringWithFormat:@"item_%d", i + 1];
 
         PSSpecifier* specifier = [PSSpecifier preferenceSpecifierNamed:[NSString  stringWithFormat:@"%@/%@",label,name] 
                                 target:self
@@ -50,36 +50,40 @@
         [mutableSpecifiers addObject:specifier];
         specifier.detailControllerClass = NSClassFromString(@"DigestEndPointSettingsController");
     }
-    NSLog(@"getSpecifiers: %@",mutableSpecifiers);
+    
+    [self.logger log:[NSString stringWithFormat:@"getSpecifiers: %@",mutableSpecifiers] level:LOGLEVEL_VERBOSE];
+
     return mutableSpecifiers;
 }
 
 -(void)setPreferenceValue:(id)value specifier:(PSSpecifier *)specifier {
-    NSLog(@"setPreferenceValue: %@",value);
+    [self.logger log:[NSString stringWithFormat:@"setPreferenceValue: %@",value] level:LOGLEVEL_VERBOSE];
     [super setPreferenceValue:value specifier:specifier];
 }
 
 -(id)readPreferenceValue:(PSSpecifier *)specifier {
-    NSLog(@"readPreferenceValue: %@",specifier.properties);
+    [self.logger log:[NSString stringWithFormat:@"readPreferenceValue: %@",specifier.properties] level:LOGLEVEL_VERBOSE];
     return [specifier valueForKey:@"endpoint"][@"uuid"];
-    // return [super readPreferenceValue:specifier];
 }
 
 -(void)removedSpecifier:(PSSpecifier*)specifier{
     @try {
-        NSLog(@"removedSpecifier: %@",specifier.properties);
+        [self.logger log:[NSString stringWithFormat:@"removedSpecifier: %@",specifier.properties] level:LOGLEVEL_VERBOSE];
         NSString *uuid = specifier.properties[@"endpoint"][@"uuid"];
         DigestPrefsManager *manager = self.manager;
         //find the endpoint and update it
+        [self.logger log:[NSString stringWithFormat:@"updating endpoint with uuid: %@",uuid] level:LOGLEVEL_VERBOSE];
         NSMutableArray *mutableEndpoints = [[manager objectForKey:@"endpoints"] mutableCopy];
-        for (int i = 0; i < mutableEndpoints.count; i++) {
-            if ([mutableEndpoints[i][@"uuid"] isEqualToString:uuid]) {
-                // [mutableEndpoints replaceObjectAtIndex:i withObject:endpoint];
-                [mutableEndpoints removeObjectAtIndex:i];
+
+        [mutableEndpoints enumerateObjectsUsingBlock:^(NSDictionary *mutEndpoint, NSUInteger idx, BOOL *stop) {
+            if ([mutEndpoint[@"uuid"] isEqualToString:uuid]) {
+                *stop = YES;
+                [mutableEndpoints removeObjectAtIndex:idx];
+                [self.logger log:[NSString stringWithFormat:@"removed endpoint: %@",mutEndpoint] level:LOGLEVEL_VERBOSE];
                 [manager setObject:mutableEndpoints forKey:@"endpoints"];
-                break;
             }
-        }
+        }];
+
         [[NSNotificationCenter defaultCenter] postNotificationName:@"com.uncore.dig3st/endpointUpdate" object:nil];
     }@catch(NSException *e) {
         NSLog(@"Error: %@", e);
@@ -92,7 +96,7 @@
 
     NSString *activeEndpoint = [self.manager objectForKey:@"activeEndpoint"];
     BOOL isDeletable = ![uuid isEqualToString:activeEndpoint];
-    NSLog(@"isDeletable: %d uuid: %@ activeEndpoint: %@",isDeletable,uuid,activeEndpoint);
+    [self.logger log:[NSString stringWithFormat:@"isDeletable: %d uuid: %@ activeEndpoint: %@",isDeletable,uuid,activeEndpoint] level:LOGLEVEL_VERBOSE];
     if (!isDeletable) return UITableViewCellEditingStyleNone;
 	return UITableViewCellEditingStyleDelete;
 }
@@ -192,7 +196,6 @@
         NSIndexPath *indexPath = [self.table indexPathForRowAtPoint:point];
         if (indexPath) {
             DigestPrefsManager *manager = self.manager;
-            //+1 because of group cell
             NSDictionary *endpoint = [manager objectForKey:@"endpoints"][indexPath.row];
             NSString *uuid = [endpoint objectForKey:@"uuid"];
             NSLog(@"endpoint %@ uuid %@ index %@",endpoint,uuid,indexPath);
@@ -207,6 +210,7 @@
 }
  
 -(void)showController:(id)controller {
+    [self.logger log:[NSString stringWithFormat:@"showController: %@",controller] level:LOGLEVEL_VERBOSE];
 	if ([controller isKindOfClass:NSClassFromString(@"DigestEndPointSettingsController")]) {
         NSIndexPath *selectedPath = self.table.indexPathForSelectedRow;
         PSTableCell *selectedCell = [self.table cellForRowAtIndexPath:selectedPath];

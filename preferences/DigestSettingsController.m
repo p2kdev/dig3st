@@ -43,27 +43,6 @@
 	return [super showController:controller]; 
 }
 
--(void)checkApiKey:(id)value specifier:(PSSpecifier *)specifier {
-	[self setPreferenceValue:value specifier:specifier];
-
-	self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Check key" style:UIBarButtonItemStylePlain target:self action:@selector(checkApiKeyAction)];
-}
-
--(void)checkApiKeyAction {
-	DigestPrefsManager *manager = [NSClassFromString(@"DigestPrefsManager") sharedInstance];
-	
-    NSString *apiKey = [manager objectForKey:@"apiKey"];
-    checkApiKeyImp(apiKey, ^(BOOL valid) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            if (valid) {
-				Alert(@"API Key", @"API Key is valid.",self);
-			} else {
-				Alert(@"API Key", @"API Key is invalid.",self);
-            }
-        });
-    });
-}
-
 -(id)readPreferenceValue:(PSSpecifier*)specifier {
 	DigestPrefsManager *manager = [NSClassFromString(@"DigestPrefsManager") sharedInstance];
 	return [manager objectForKey:specifier.properties[@"key"]];

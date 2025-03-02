@@ -26,11 +26,11 @@
 	return [super showController:controller]; 
 }
 
--(void)checkApiKey:(id)value specifier:(PSSpecifier *)specifier {
-	[self setPreferenceValue:value specifier:specifier];
+// -(void)checkApiKey:(id)value specifier:(PSSpecifier *)specifier {
+// 	[self setPreferenceValue:value specifier:specifier];
 
-	self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Check key" style:UIBarButtonItemStylePlain target:self action:@selector(checkApiKeyAction)];
-}
+// 	self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Check key" style:UIBarButtonItemStylePlain target:self action:@selector(checkApiKeyAction)];
+// }
 
 -(void)viewDidLayoutSubviews {
 	self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Save" style:UIBarButtonItemStylePlain target:self action:@selector(save)];
@@ -74,7 +74,11 @@
 					break;
 				}
 			}
+			//update the ui for preferences
 			[[NSNotificationCenter defaultCenter] postNotificationName:@"com.uncore.dig3st/endpointUpdate" object:nil];
+			//update the openai endpoint
+        	CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), (CFStringRef)@"com.uncore.dig3st/preferences.changed", NULL, NULL, true);
+
 		    [self.navigationController popViewControllerAnimated:YES];
 			return;
 		}
@@ -87,6 +91,7 @@
 		[manager setObject:endpoints forKey:@"endpoints"];
 		[[NSNotificationCenter defaultCenter] postNotificationName:@"com.uncore.dig3st/endpointUpdate" object:nil];
 
+
 		NSLog(@"endpoint: %@", endpoint);
     	[self.navigationController popViewControllerAnimated:YES];
 	}@catch(NSException *e) {
@@ -95,20 +100,20 @@
 	}
 }
 
--(void)checkApiKeyAction {
-	DigestPrefsManager *manager = [NSClassFromString(@"DigestPrefsManager") sharedInstance];
+// -(void)checkApiKeyAction {
+// 	DigestPrefsManager *manager = [NSClassFromString(@"DigestPrefsManager") sharedInstance];
 	
-    NSString *apiKey = [manager objectForKey:@"apiKey"];
-    checkApiKeyImp(apiKey, ^(BOOL valid) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            if (valid) {
-				Alert(@"API Key", @"API Key is valid.",self);
-			} else {
-				Alert(@"API Key", @"API Key is invalid.",self);
-            }
-        });
-    });
-}
+//     NSString *apiKey = [manager objectForKey:@"apiKey"];
+//     checkApiKeyImp(apiKey, ^(BOOL valid) {
+//         dispatch_async(dispatch_get_main_queue(), ^{
+//             if (valid) {
+// 				Alert(@"API Key", @"API Key is valid.",self);
+// 			} else {
+// 				Alert(@"API Key", @"API Key is invalid.",self);
+//             }
+//         });
+//     });
+// }
 
 -(id)readPreferenceValue:(PSSpecifier*)specifier {
 	if (!self.endpoint) return nil;
