@@ -18,7 +18,7 @@
 			cellClass = DigestSubtitleLinkCell;
 			detail = DigestEndpointsController;
 			isController = 1;
-			detail = DigestEndPointSettingsController;
+			detail = DigestEndpointSettingsController;
 			label = "Add Endpoint";
 			systemIcon = "plus";
 		},
@@ -36,11 +36,10 @@
 			PostNotification = "com.uncore.dig3st/preferences.changed";
 		},
 		{
-			cell = DigestEditTextCell;
+			cell = PSEditTextCell;
 			label = "System Prompt";
 			placeholder = "System prompt";
-			cellSubtitleText = "System prompt to use, leave empty if not needed";
-			key = prompt;
+			key = systemPrompt;
 			defaults = "com.uncore.dig3st";
 			noAutoCorrect = true; 
 			PostNotification = "com.uncore.dig3st/preferences.changed";
@@ -95,8 +94,16 @@
 		{
 			cell = PSEditTextCell;
 			label = "Min message length";
-			cellSubtitleText = "If the notification text too short";
 			key = minChars;
+			defaults = "com.uncore.dig3st";
+			noAutoCorrect = true; 
+			isNumeric = true;
+			PostNotification = "com.uncore.dig3st/preferences.changed";
+		},
+		{
+			cell = PSEditTextCell;
+			label = "Timeout in seconds";
+			key = timeout;
 			defaults = "com.uncore.dig3st";
 			noAutoCorrect = true; 
 			isNumeric = true;

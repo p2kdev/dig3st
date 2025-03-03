@@ -1,10 +1,9 @@
 #import "../../headers/ChatQuery.h"
 @implementation ChatQuery
-- (instancetype)initWithPrompt:(NSString *)prompt model:(NSString *)model {
+- (instancetype)initWithPrompt:(NSString *)prompt {
     self = [super init];
     if (self) {
         self.prompt = prompt;
-        self.model = model;
     }
     return self;
 }

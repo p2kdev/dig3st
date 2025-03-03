@@ -2,10 +2,7 @@
 #include <substrate.h>
 #import "../headers/HeadersTweak.h"
 
-//just 500bytes
-//much more efficient than reading from disk every time
 NSData *imgData;
-
 DigestPrefsManager *prefsManager;
 OpenAI *openai;
 
@@ -92,24 +89,25 @@ BOOL isOkToSummarize(NSString *sectionIdentifier) {
 
         BOOL contentToShort = textContent ? textContent.length < minChars  : YES;
         if (contentToShort || !textContent) {
+            [logger log:@"Skipping summarization, content is too short" level:LOGLEVEL_WARNING];
             [req setValue:@(NO) forKey:@"dig3st"];
             return %orig;        
         }
-        [logger log:[NSString stringWithFormat:@"Notification received bundle identifier is %@",[prefsManager objectForKey:req.sectionIdentifier]] level:LOGLEVEL_VERBOSE];
+        [logger log:[NSString stringWithFormat:@"Notification received bundle identifier is %@",req.sectionIdentifier] level:LOGLEVEL_VERBOSE];
 
         //checks if user set anything for this bundle identifier
         id _enabled = [prefsManager objectForKey:req.sectionIdentifier];
         //if not then use isOkToSummarize else use the user setting
         BOOL enabled = _enabled != nil ? [_enabled boolValue] : isOkToSummarize(req.sectionIdentifier);
 
-        [logger log:[NSString stringWithFormat:@"Will summarize notification with bundle identifier %@ ? %@",[prefsManager objectForKey:req.sectionIdentifier],enabled ? @"yes" : @"no"] level:LOGLEVEL_VERBOSE];
-        ChatQuery *query = [[ChatQuery alloc] initWithPrompt:textContent model:@"gpt-3.5-turbo"];
+        [logger log:[NSString stringWithFormat:@"Will summarize notification with bundle identifier %@ ? %@",req.sectionIdentifier,enabled ? @"yes" : @"no"] level:LOGLEVEL_INFO];
+        ChatQuery *query = [[ChatQuery alloc] initWithPrompt:textContent];
         [logger log:[NSString stringWithFormat:@"ChatQuery has been created with prompt %@",textContent] level:LOGLEVEL_VERBOSE];
 
         if (enabled) {
             [openai summarize:query completion:^(NSString *summary) {
                 if (summary.length > 0) {
-                    [logger log:[NSString stringWithFormat:@"Summary: %@",summary] level:LOGLEVEL_VERBOSE];
+                    [logger log:[NSString stringWithFormat:@"Summary: %@",summary] level:LOGLEVEL_INFO];
                     [req setValue:@(YES) forKey:@"dig3st"];
                     [req setValue:[req.content valueForKey:@"message"] forKey:@"actualMessage"];
                     [req.content setValue:summary forKey:@"message"];
@@ -194,10 +192,9 @@ BOOL isOkToSummarize(NSString *sectionIdentifier) {
                 [openai check:^(BOOL success) {
                     if (!success) {
                         [logger log:@"API request failed disable Check Api in the settings to skip this check and then respring" level:LOGLEVEL_WARNING];
-                        openai = nil;
                         //instantly showing the alert results in a crash so delay it
                         return dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(20 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-                            Alert(@"API Error", @"API request failed disable Check Api in the settings to skip this check and then respring",nil);
+                            Alert(@"API Error", @"API request failed this means the current endpoint might be invalid,disable Check Api in the settings to skip this check and then respring",nil);
                         });
                     }
                 }];

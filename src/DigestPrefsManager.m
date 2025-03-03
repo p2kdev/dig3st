@@ -26,6 +26,7 @@ static void notificationCallback(CFNotificationCenterRef center, void *observer,
         @"prompt" : @"Summarize this text as sort as possible only mention about the content do not go in detail,super simple shorten anything you can (urls,numbers),compromise understandability in favor of keeping it short,only keep keywords,if possible fit it in a max a sentence of 5 words",
         @"systemPrompt": @"You are an assistant that summarizes notifications.",
         @"minChars": @"15",
+        @"timeout": @"30",
         //some enabled defaults
         @"com.apple.MobileSMS" : @YES,
         @"com.apple.news" : @YES,
