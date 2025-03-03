@@ -100,18 +100,6 @@
     if (!isDeletable) return UITableViewCellEditingStyleNone;
 	return UITableViewCellEditingStyleDelete;
 }
-// - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
-// {
-//     DigestPrefsManager *manager = self.manager;
-//     NSDictionary *endpoint = [manager objectForKey:@"endpoints"][indexPath.row];
-//     NSString *url = [endpoint objectForKey:@"url"];
-//     // NSString *model = [endpoint objectForKey:@"model"];
-//     // NSString *urlWithLabel= [NSString stringWithFormat:@"%@/%@",textLabel,model];
-
-//     UITableViewCell *cell = [super tableView:tableView cellForRowAtIndexPath:indexPath];
-//     cell.detailTextLabel.text = url;
-//     return cell;
-// }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     static NSString *CellIdentifier = @"Cell";
@@ -119,9 +107,10 @@
     if (cell == nil) {
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:CellIdentifier];
     }
-
+    
+    PSSpecifier *specifier = [self specifierAtIndexPath:indexPath];
     DigestPrefsManager *manager = self.manager;
-    NSDictionary *endpoint = [manager objectForKey:@"endpoints"][indexPath.row];
+    NSDictionary *endpoint = [[specifier properties] objectForKey:@"endpoint"];
     NSString *uuid = [endpoint objectForKey:@"uuid"];
     NSString *activeEndpoint = [manager objectForKey:@"activeEndpoint"];
     NSString *url = [endpoint objectForKey:@"url"];
@@ -177,8 +166,7 @@
         CGPoint point = [gestureRecognizer locationInView:self.table];
         NSIndexPath *indexPath = [self.table indexPathForRowAtPoint:point];
         if (indexPath) {
-            //+1 because of group cell
-            PSSpecifier *specifier = self.specifiers[indexPath.row + 1];
+            PSSpecifier *specifier = [self specifierAtIndexPath:indexPath];
             Class detailControllerClass = specifier.detailControllerClass;
             if (detailControllerClass) {
                 id detailController = [[detailControllerClass alloc] init];
@@ -197,12 +185,13 @@
         NSIndexPath *indexPath = [self.table indexPathForRowAtPoint:point];
         if (indexPath) {
             DigestPrefsManager *manager = self.manager;
-            NSDictionary *endpoint = [manager objectForKey:@"endpoints"][indexPath.row];
+            PSSpecifier *specifier = [self specifierAtIndexPath:indexPath];
+            NSDictionary *endpoint = [[specifier properties] objectForKey:@"endpoint"];
+
             NSString *uuid = [endpoint objectForKey:@"uuid"];
-            NSLog(@"endpoint %@ uuid %@ index %@",endpoint,uuid,indexPath);
+            [self.logger log:[NSString stringWithFormat:@"Activating endpoint: %@",endpoint] level:LOGLEVEL_INFO];
             // Update the active endpoint
             [manager setObject:uuid forKey:@"activeEndpoint"];
-			// [[NSNotificationCenter defaultCenter] postNotificationName:@"com.uncore.dig3st/preferences.changed" object:nil];
             CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), (CFStringRef)@"com.uncore.dig3st/preferences.changed", NULL, NULL, true);
             // Reload the table view to update the checkmarks
             [self.table reloadData];

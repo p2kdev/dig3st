@@ -1,12 +1,13 @@
 // https://github.com/NoisyFlake/Velvet2/blob/master/preferences/Velvet2SettingsController.m
 #import "../headers/HeadersPreferences.h"
 
-@implementation DigestEndPointSettingsController
+@implementation DigestEndpointSettingsController
 
 - (instancetype)init {
     self = [super init];
     if (self) {
         self.manager = [NSClassFromString(@"DigestPrefsManager") sharedInstance];
+		self.logger =[NSClassFromString(@"DigestLogger") sharedInstance];
     }
     return self;
 }
@@ -26,12 +27,6 @@
 	return [super showController:controller]; 
 }
 
-// -(void)checkApiKey:(id)value specifier:(PSSpecifier *)specifier {
-// 	[self setPreferenceValue:value specifier:specifier];
-
-// 	self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Check key" style:UIBarButtonItemStylePlain target:self action:@selector(checkApiKeyAction)];
-// }
-
 -(void)viewDidLayoutSubviews {
 	self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Save" style:UIBarButtonItemStylePlain target:self action:@selector(save)];
 	[super viewDidLayoutSubviews];
@@ -44,7 +39,7 @@
 			//skip group cell
 			if ([[specifier.properties valueForKey:@"cell"] isEqual:@"PSGroupCell"] ) continue;
 			
-			NSLog(@"specifier: %@", specifier.properties);
+			[self.logger log:[NSString stringWithFormat:@"specifier: %@", specifier.properties] level:LOGLEVEL_VERBOSE];
 			PSEditableTableCell *cell = [specifier.properties valueForKey:@"cellObject"];
 			UITextField *textField = [cell valueForKey:@"textField"]; 
 			if (textField) {
@@ -55,15 +50,16 @@
 				}
 
 				endpoint[specifier.properties[@"key"]] = inputText;
-				NSLog(@"TextField Text: %@", inputText);
+				[self.logger log:[NSString stringWithFormat:@"TextField Text: %@", inputText] level:LOGLEVEL_VERBOSE];
 			} else {
 				NSLog(@"Failed to access textField.");
 			}
 		}
 		if (!isOkayToSave) return Alert(@"Error", @"Please fill in all fields.",self);
-		//generate a uuid
+
 		DigestPrefsManager *manager = [NSClassFromString(@"DigestPrefsManager") sharedInstance];
 		if (self.endpoint) {
+			[self.logger log:[NSString stringWithFormat:@"Updating endpoint: %@", endpoint] level:LOGLEVEL_INFO];
 			endpoint[@"uuid"] = self.endpoint[@"uuid"];
 			//find the endpoint and update it
 			NSMutableArray *mutableEndpoints = [[manager objectForKey:@"endpoints"] mutableCopy];
@@ -85,35 +81,17 @@
 		NSString *uuid = [[NSUUID UUID] UUIDString];
 		endpoint[@"uuid"] = uuid;
         NSMutableArray *endpoints = [[manager objectForKey:@"endpoints"] mutableCopy];
-
-		//push to dictionary
+		[self.logger log:[NSString stringWithFormat:@"Adding endpoint: %@", endpoint] level:LOGLEVEL_INFO];
 		[endpoints addObject:endpoint];
 		[manager setObject:endpoints forKey:@"endpoints"];
+		[self.logger log:[NSString stringWithFormat:@"Final endpoints: %@", endpoints] level:LOGLEVEL_VERBOSE];
 		[[NSNotificationCenter defaultCenter] postNotificationName:@"com.uncore.dig3st/endpointUpdate" object:nil];
-
-
-		NSLog(@"endpoint: %@", endpoint);
     	[self.navigationController popViewControllerAnimated:YES];
 	}@catch(NSException *e) {
 		NSLog(@"Error: %@", e);
 		Alert(@"Error", @"An error occurred while saving.",self);
 	}
 }
-
-// -(void)checkApiKeyAction {
-// 	DigestPrefsManager *manager = [NSClassFromString(@"DigestPrefsManager") sharedInstance];
-	
-//     NSString *apiKey = [manager objectForKey:@"apiKey"];
-//     checkApiKeyImp(apiKey, ^(BOOL valid) {
-//         dispatch_async(dispatch_get_main_queue(), ^{
-//             if (valid) {
-// 				Alert(@"API Key", @"API Key is valid.",self);
-// 			} else {
-// 				Alert(@"API Key", @"API Key is invalid.",self);
-//             }
-//         });
-//     });
-// }
 
 -(id)readPreferenceValue:(PSSpecifier*)specifier {
 	if (!self.endpoint) return nil;

@@ -38,10 +38,17 @@
         @"Verbose": @10,
         @"Info": @6,
         @"Warning": @4,
-        @"Disable Output": @10
+        @"Disable Output": @1
     };
+    //in objc, dictionaries are not ordered, so we need to order them manually
+    NSArray *orderedKeys = @[
+        @"Disable Output",
+        @"Warning",
+        @"Info",
+        @"Verbose"
+    ];
 
-    for (NSString *key in logLevels) {
+    for (NSString *key in orderedKeys) {
         NSNumber *value = logLevels[key];
         PSSpecifier* specifier = [PSSpecifier preferenceSpecifierNamed:key
                                 target:self
@@ -66,12 +73,11 @@
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:CellIdentifier];
     }
 
+    PSSpecifier *specifier = [self specifierAtIndexPath:indexPath];
     DigestPrefsManager *manager = self.manager;
     NSInteger logLevel = [[manager objectForKey:@"logLevel"] integerValue];
-    //+1 because of group cell
-    NSInteger normalizedIndex = indexPath.row + 1;
-    //get cell properties
-    NSDictionary *cellProperties = [self.specifiers[normalizedIndex] properties];
+    NSDictionary *cellProperties = [specifier properties];
+
     BOOL enabled = [cellProperties[@"val"] isEqualToNumber:@(logLevel)];
 
     cell.textLabel.text = cellProperties[@"label"];
@@ -98,7 +104,7 @@
 
     // Create and configure the footer label
     UILabel *footerLabel = [[UILabel alloc] initWithFrame:CGRectZero];
-    footerLabel.text = @"Check out my youtube video if you need help with debugging";
+    footerLabel.text = @"Check out my YouTube video if you need help with debugging";
     footerLabel.textAlignment = NSTextAlignmentCenter;
     footerLabel.textColor = [UIColor grayColor];
     footerLabel.numberOfLines = 0;
@@ -115,14 +121,15 @@
     if (gestureRecognizer.state == UIGestureRecognizerStateEnded) {
         UITableViewCell *cell = (UITableViewCell *)gestureRecognizer.view;
         NSIndexPath *indexPath = [self.table indexPathForCell:cell];
+
         if (indexPath) {
-            PSSpecifier *specifier = self.specifiers[indexPath.row];
+            PSSpecifier *specifier = [self specifierAtIndexPath:indexPath];
             NSNumber *logLevel = [specifier propertyForKey:@"val"];
             [self.logger log:[NSString stringWithFormat:@"Setting log level to %@", logLevel] level:LOGLEVEL_INFO];
-            // [self.logger setLogLevel:logLevel.integerValue];
             DigestPrefsManager *manager = self.manager;
             [manager setObject:logLevel forKey:@"logLevel"];
-            // CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), (CFStringRef)@"com.uncore.dig3st/preferences.changed", NULL, NULL, true);
+            //FIXME: this also updates the OpenAI instance, but it should only update the logger
+        	CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), (CFStringRef)@"com.uncore.dig3st/preferences.changed", NULL, NULL, true);
             [self.table reloadData];
         }
     }
