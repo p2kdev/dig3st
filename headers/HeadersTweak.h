@@ -3,7 +3,7 @@
 #import <Foundation/Foundation.h>
 
 
-void postDebugNotificationWithInfo(NSDictionary *info);
+void postDebugNotificationWithInfo();
 
 
 #import "Log.h"

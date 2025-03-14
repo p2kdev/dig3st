@@ -88,8 +88,8 @@ BOOL isOkToSummarize(NSString *sectionIdentifier) {
         NSString *textContent = [req.content valueForKey:@"message"];
         NSInteger minChars = [[prefsManager objectForKey:@"minChars"] integerValue];
 
-        BOOL contentToShort = textContent ? textContent.length < minChars  : YES;
-        if (contentToShort) {
+        BOOL contentTooShort = textContent ? textContent.length < minChars  : YES;
+        if (contentTooShort) {
             [logger log:@"Skipping summarization, content is too short" level:LOGLEVEL_WARNING];
             [req setValue:@(NO) forKey:@"dig3st"];
             return %orig;        
