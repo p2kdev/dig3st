@@ -1,0 +1,21 @@
+TARGET := simulator:clang::7.0
+INSTALL_TARGET_PROCESSES = SpringBoard
+ARCHS = x86_64 i386
+
+
+include $(THEOS)/makefiles/common.mk
+
+TWEAK_NAME = dig3st
+
+dig3st_FILES = src/Tweak.sim.x src/DigestPrefsManager.m src/Alert.m ./src/OpenAI/OpenAI.m ./src/OpenAI/Config.m ./src/OpenAI/ChatQuery.m ./src/DigestLogger.m
+dig3st_CFLAGS = -fobjc-arc
+dig3st_PRIVATE_FRAMEWORKS = 
+# dig3st_LDFLAGS= -F/Users/uncore/Desktop/proj/tweaks/dig3st/Frameworks/CydiaSubstrate.framework/CydiaSubstrate
+
+include $(THEOS_MAKE_PATH)/tweak.mk
+
+setup:: clean all
+	@rm -f /opt/simject/$(TWEAK_NAME).dylib
+	@cp -v $(THEOS_OBJ_DIR)/$(TWEAK_NAME).dylib /opt/simject/$(TWEAK_NAME).dylib
+	@codesign -f -s - /opt/simject/$(TWEAK_NAME).dylib
+	@cp -v $(PWD)/$(TWEAK_NAME).plist /opt/simject
