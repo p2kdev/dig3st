@@ -48,7 +48,7 @@
         [specifier setProperty:endpoint forKey:@"endpoint"];
         [specifier setProperty:NSStringFromSelector(@selector(removedSpecifier:)) forKey:PSDeletionActionKey];
         [mutableSpecifiers addObject:specifier];
-        specifier.detailControllerClass = NSClassFromString(@"DigestEndPointSettingsController");
+        specifier.detailControllerClass = NSClassFromString(@"DigestEndpointSettingsController");
     }
     
     [self.logger log:[NSString stringWithFormat:@"getSpecifiers: %@",mutableSpecifiers] level:LOGLEVEL_VERBOSE];
@@ -170,8 +170,8 @@
             Class detailControllerClass = specifier.detailControllerClass;
             if (detailControllerClass) {
                 id detailController = [[detailControllerClass alloc] init];
-                ((DigestEndPointSettingsController *)detailController).titleKey = specifier.properties[@"titleKey"];
-                ((DigestEndPointSettingsController *)detailController).endpoint = specifier.properties[@"endpoint"];
+                ((DigestEndpointSettingsController *)detailController).titleKey = specifier.properties[@"titleKey"];
+                ((DigestEndpointSettingsController *)detailController).endpoint = specifier.properties[@"endpoint"];
                 [self.navigationController pushViewController:detailController animated:YES];
             }
         }
@@ -201,13 +201,13 @@
  
 -(void)showController:(id)controller {
     [self.logger log:[NSString stringWithFormat:@"showController: %@",controller] level:LOGLEVEL_VERBOSE];
-	if ([controller isKindOfClass:NSClassFromString(@"DigestEndPointSettingsController")]) {
+	if ([controller isKindOfClass:NSClassFromString(@"DigestEndpointSettingsController")]) {
         NSIndexPath *selectedPath = self.table.indexPathForSelectedRow;
         PSTableCell *selectedCell = [self.table cellForRowAtIndexPath:selectedPath];
         PSSpecifier *specifier = selectedCell.specifier;
 
-        ((DigestEndPointSettingsController *)controller).titleKey = specifier.properties[@"titleKey"];
-        ((DigestEndPointSettingsController *)controller).endpoint = specifier.properties[@"endpoint"];
+        ((DigestEndpointSettingsController *)controller).titleKey = specifier.properties[@"titleKey"];
+        ((DigestEndpointSettingsController *)controller).endpoint = specifier.properties[@"endpoint"];
 	}
 
 	return [super showController:controller]; 

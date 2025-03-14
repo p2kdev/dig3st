@@ -63,15 +63,6 @@
 			systemIcon = "heart";
 		},
 		{
-			cell = PSLinkCell;
-			cellClass = DigestSubtitleLinkCell;
-			cellSubtitleText = "Change Log level for debugging";
-			detail = DigestLogLevelController;
-			isController = 1;
-			label = "Log Level";
-			systemIcon = "exclamationmark.triangle";
-		},
-		{
 			cell = PSSwitchCell;
 			cellClass = DigestSwitch;
 			cellSubtitleText = "Internal sanity checks";
@@ -108,6 +99,28 @@
 			noAutoCorrect = true; 
 			isNumeric = true;
 			PostNotification = "com.uncore.dig3st/preferences.changed";
+		},
+		{
+			cell = PSGroupCell;
+			label = "Testing & Debugging";
+		},
+		{
+			cell = PSLinkCell;
+			cellClass = DigestSubtitleLinkCell;
+			cellSubtitleText = "Send a fake notification";
+			detail = DigestTestingController;
+			isController = 1;
+			label = "Test";
+			systemIcon = "wrench.and.screwdriver";
+		},
+		{
+			cell = PSLinkCell;
+			cellClass = DigestSubtitleLinkCell;
+			cellSubtitleText = "Change Log level for debugging";
+			detail = DigestLogLevelController;
+			isController = 1;
+			label = "Log Level";
+			systemIcon = "exclamationmark.triangle";
 		},
 	);
 	title = "Settings";

@@ -19,6 +19,7 @@
 #import "Digest/DigestSubtitleLinkCell.h"
 #import "Digest/DigestEndpointSettingsController.h"
 #import "Digest/DigestEndpointsController.h"
+#import "Digest/DigestTestingController.h"
 #import "Digest/DigestSwitch.h"
 #import "Digest/UIColor+Digest.h"
 #import "Digest/DigestEditTextCell.h"

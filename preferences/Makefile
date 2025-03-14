@@ -6,7 +6,7 @@ include $(THEOS)/makefiles/common.mk
 
 BUNDLE_NAME = dig3st
 
-dig3st_FILES = $(wildcard *.m CustomCells/*.m ../src/DigestPrefsManager.m ../src/DigestLogger.m ../src/CheckApiKey.m ../src/Alert.m)
+dig3st_FILES = $(wildcard *.m CustomCells/*.m  ../src/DigestPrefsManager.m  ../src/DigestLogger.m  ../src/Alert.m)
 dig3st_FRAMEWORKS = UIKit
 dig3st_PRIVATE_FRAMEWORKS = Preferences
 dig3st_INSTALL_PATH = /Library/PreferenceBundles

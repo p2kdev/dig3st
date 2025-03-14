@@ -1,0 +1,29 @@
+{
+	items = (
+		{
+			cell = PSGroupCell;
+			label = "Fake Notification";
+		},
+		{
+			cell = PSEditTextCell;
+			label = "Title";
+			placeholder = "Notification content";
+			key = title;
+		},
+		{
+			cell = PSEditTextCell;
+			label = "Content";
+			placeholder = "Notification content";
+			key = content;
+		},
+		{
+			cell = PSEditTextCell;
+			label = "App";
+			placeholder = "App";
+			key = bundleIdentifier;
+            default = "com.apple.MobileSMS";
+			noAutoCorrect = true; 
+		}
+	);
+	title = "Testing";
+}

@@ -50,13 +50,13 @@ BOOL isOkToSummarize(NSString *sectionIdentifier) {
         if (self.notificationRequest.dig3st) {
             UIView *seamlessContentView =  [view valueForKey:@"notificationContentView"];
             if (seamlessContentView) {
-                UIImage *image = [[UIImage alloc] initWithData:imgData];
+                UIImage *image = [[UIImage alloc] initWithData:imgData scale:[[UIScreen mainScreen] scale]];
                 self.image = image;
 
                 NSTextAttachment *attachment = [[NSTextAttachment alloc] init];
                 attachment.image = image;
-                attachment.bounds = CGRectMake(0, 0, 20, 15);
-                
+                attachment.bounds = CGRectMake(0, 0, 19, 12);
+                    
                 NSAttributedString *attachmentString = [NSAttributedString attributedStringWithAttachment:attachment];
                 NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:@" "];
                 
@@ -83,17 +83,17 @@ BOOL isOkToSummarize(NSString *sectionIdentifier) {
 %hook NCNotificationDispatcher
 -(void)postNotificationWithRequest:(NCNotificationRequest*)req {
     @try {
+        DigestLogger *logger = [NSClassFromString(@"DigestLogger") sharedInstance];
+        [logger log:[NSString stringWithFormat:@"Notification received bundle identifier is %@",req.sectionIdentifier] level:LOGLEVEL_VERBOSE];
         NSString *textContent = [req.content valueForKey:@"message"];
         NSInteger minChars = [[prefsManager objectForKey:@"minChars"] integerValue];
-        DigestLogger *logger = [NSClassFromString(@"DigestLogger") sharedInstance];
 
         BOOL contentToShort = textContent ? textContent.length < minChars  : YES;
-        if (contentToShort || !textContent) {
+        if (contentToShort) {
             [logger log:@"Skipping summarization, content is too short" level:LOGLEVEL_WARNING];
             [req setValue:@(NO) forKey:@"dig3st"];
             return %orig;        
         }
-        [logger log:[NSString stringWithFormat:@"Notification received bundle identifier is %@",req.sectionIdentifier] level:LOGLEVEL_VERBOSE];
 
         //checks if user set anything for this bundle identifier
         id _enabled = [prefsManager objectForKey:req.sectionIdentifier];
@@ -101,10 +101,10 @@ BOOL isOkToSummarize(NSString *sectionIdentifier) {
         BOOL enabled = _enabled != nil ? [_enabled boolValue] : isOkToSummarize(req.sectionIdentifier);
 
         [logger log:[NSString stringWithFormat:@"Will summarize notification with bundle identifier %@ ? %@",req.sectionIdentifier,enabled ? @"yes" : @"no"] level:LOGLEVEL_INFO];
-        ChatQuery *query = [[ChatQuery alloc] initWithPrompt:textContent];
-        [logger log:[NSString stringWithFormat:@"ChatQuery has been created with prompt %@",textContent] level:LOGLEVEL_VERBOSE];
 
         if (enabled) {
+            ChatQuery *query = [[ChatQuery alloc] initWithPrompt:textContent];
+            [logger log:[NSString stringWithFormat:@"ChatQuery has been created with prompt %@",textContent] level:LOGLEVEL_VERBOSE];
             [openai summarize:query completion:^(NSString *summary) {
                 if (summary.length > 0) {
                     [logger log:[NSString stringWithFormat:@"Summary: %@",summary] level:LOGLEVEL_INFO];
@@ -134,16 +134,13 @@ BOOL isOkToSummarize(NSString *sectionIdentifier) {
     @try{    
         NSLog(@"init");
         prefsManager = [NSClassFromString(@"DigestPrefsManager") sharedInstance];
-        NSDictionary *prefsDict = [prefsManager dictionaryRepresentation];
-                for (NSString *key in prefsDict) {
-                    NSLog(@"NSUserDefaults key: %@, value: %@ class: %@", key, prefsDict[key],[prefsDict[key] class]);
-                }
         BOOL enabled = [[prefsManager objectForKey:@"enabled"] boolValue];
         BOOL apiChecks = [[prefsManager objectForKey:@"apiChecks"] boolValue];
         BOOL sanityChecks = [[prefsManager objectForKey:@"sanityChecks"] boolValue];
         DigestLogger *logger = [NSClassFromString(@"DigestLogger") sharedInstance];
+		//maybe register it only if enabled
+        CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, (CFNotificationCallback)postDebugNotificationWithInfo, CFSTR("com.uncore.dig3st/push"), NULL, CFNotificationSuspensionBehaviorCoalesce);
         if (enabled) {
-
             NSString *uuid = [prefsManager objectForKey:@"activeEndpoint"];
             NSArray *endpoints = [prefsManager objectForKey:@"endpoints"];
             __block NSDictionary *endpoint;
@@ -200,7 +197,6 @@ BOOL isOkToSummarize(NSString *sectionIdentifier) {
                 }];
             }
             
-            // Config *config = [[Config alloc] initWithToken:apiKey host:@"api.openai.com/v1" port:@443 scheme:@"https" basePath:@"/v1" timeoutInterval:@60];
             imgData = [[NSData alloc] initWithContentsOfFile:imgFile];
             [logger log:@"End of ctor block" level:LOGLEVEL_VERBOSE];
             %init;

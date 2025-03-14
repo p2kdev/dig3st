@@ -32,11 +32,17 @@ static void notificationCallback(CFNotificationCenterRef center, void *observer,
         @"com.apple.news" : @YES,
         @"ph.telegra.Telegraph" : @YES,
         @"com.apple.mobilemail" : @YES,
-        @"activeEndpoint" : @"131931923291414342342",
+        @"activeEndpoint" : @"3FAC24B8-6EBF-40CC-818B-8BBC64410EF4",
         @"endpoints" : @[
-            @{@"apiKey": @"AIzaSyDKxKADDHENhe3IcdofAP7ljc6ZolbuinQ", @"uuid": @"131931923291414342342",@"label":@"main", @"model": @"gemini-1.5-flash", @"url": @"https://generativelanguage.googleapis.com/v1beta/openai"},
-            @{@"apiKey": @"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", @"uuid": @"123141241432423413132", @"label":@"main",@"model": @"gpt-4o", @"url": @"https://api.openai.com/v1"},
+            @{@"apiKey": @"your gemini api key", @"uuid": @"3FAC24B8-6EBF-40CC-818B-8BBC64410EF4",@"label":@"main", @"model": @"gemini-2.0-flash", @"url": @"https://generativelanguage.googleapis.com/v1beta/openai"},
+            @{@"apiKey": @"your openai api key", @"uuid": @"792BBF8B-A0EF-477D-B5AE-D105D0D2B340", @"label":@"main",@"model": @"gpt-4o", @"url": @"https://api.openai.com/v1"},
+            @{@"apiKey": @"key may not be required", @"uuid": @"E7C57337-EA07-4EF6-AEB7-D5148B7E856E", @"label":@"ollama",@"model": @"qwen2.5:7b", @"url": @"http://192.168.1.152:11434/v1"},
         ],
+        @"testNotif":@{
+            @"title": @"Google",
+            @"content": @"We noticed a new sign-in to your Google Account on a Linux device. If this was you, you don’t need to do anything. If not, we’ll help you secure your account.",
+            @"bundleIdentifier": @"com.apple.mobilemail",
+        }
     }];
     
     CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, notificationCallback, (CFStringRef)nsNotificationString, NULL, CFNotificationSuspensionBehaviorCoalesce);

@@ -2,6 +2,10 @@
 #import <UserNotifications/UserNotifications.h>
 #import <Foundation/Foundation.h>
 
+
+void postDebugNotificationWithInfo(NSDictionary *info);
+
+
 #import "Log.h"
 #import "Alert.h"
 #import "CheckApiKey.h"

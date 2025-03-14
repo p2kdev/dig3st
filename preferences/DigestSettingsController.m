@@ -35,7 +35,7 @@
 	return specifiers;
 }
 
-- (void)dealloc {
+- (void)dealloc { 
     [[NSNotificationCenter defaultCenter] removeObserver:self name:@"com.uncore.dig3st/endpointUpdate" object:nil];
 }
 
@@ -50,6 +50,14 @@
 
 - (NSMutableArray*)visibleSpecifiersFromPlist:(NSString*)plist {
 	return [self loadSpecifiersFromPlistName:plist target:self];
+}
+
+-(void)yt {
+	if ([[UIApplication sharedApplication] canOpenURL:[NSURL URLWithString:@"youtube://"]]) {
+		[[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"youtube://"] options:@{} completionHandler:nil];
+	} else {
+		[[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"https://www.youtube.com"] options:@{} completionHandler:nil];
+	}
 }
 
 -(void)donate {
