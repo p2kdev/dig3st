@@ -52,11 +52,28 @@
 	return [self loadSpecifiersFromPlistName:plist target:self];
 }
 
+-(void)twitter {
+	NSURL *twitter = [NSURL URLWithString:@"twitter://user?screen_name=uncor3_"];
+	NSURL *web = [NSURL URLWithString:@"https://x.com/uncor3_"];
+
+    if ([[UIApplication sharedApplication] canOpenURL:twitter]) {
+        [[UIApplication sharedApplication] openURL:twitter options:@{} completionHandler:nil];
+    } else {
+        [[UIApplication sharedApplication] openURL:web options:@{} completionHandler:nil];
+    }
+}
+
 -(void)yt {
-	if ([[UIApplication sharedApplication] canOpenURL:[NSURL URLWithString:@"youtube://"]]) {
-		[[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"youtube://"] options:@{} completionHandler:nil];
+	NSString *videoID = @"Dm8FfbfD5q0";
+	NSString *youtubeURLString = [NSString stringWithFormat:@"youtube://www.youtube.com/watch?v=%@", videoID];
+	NSURL *youtubeURL = [NSURL URLWithString:youtubeURLString];
+
+	if ([[UIApplication sharedApplication] canOpenURL:youtubeURL]) {
+		[[UIApplication sharedApplication] openURL:youtubeURL options:@{} completionHandler:nil];
 	} else {
-		[[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"https://www.youtube.com"] options:@{} completionHandler:nil];
+		// Open in Safari if YouTube app is not installed
+		NSURL *webURL = [NSURL URLWithString:[NSString stringWithFormat:@"https://www.youtube.com/watch?v=%@", videoID]];
+		[[UIApplication sharedApplication] openURL:webURL options:@{} completionHandler:nil];
 	}
 }
 

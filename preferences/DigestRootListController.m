@@ -83,29 +83,18 @@
 	CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), (CFStringRef)@"com.uncore.dig3st/preferences.changed", NULL, NULL, YES);
 }
 
--(void)twitter {
-	NSURL *tweetbot = [NSURL URLWithString:@"tweetbot://NoisyFlake/user_profile/NoisyFlake"];
-	NSURL *twitterrific = [NSURL URLWithString:@"twitterrific://profile?screen_name=NoisyFlake"];
-	NSURL *twitter = [NSURL URLWithString:@"twitter://user?screen_name=NoisyFlake"];
-	NSURL *web = [NSURL URLWithString:@"http://www.twitter.com/NoisyFlake"];
-	
-	if ([[UIApplication sharedApplication] canOpenURL:tweetbot]) {
-        [[UIApplication sharedApplication] openURL:tweetbot options:@{} completionHandler:nil];
-    } else if ([[UIApplication sharedApplication] canOpenURL:twitterrific]) {
-        [[UIApplication sharedApplication] openURL:twitterrific options:@{} completionHandler:nil];
-    } else if ([[UIApplication sharedApplication] canOpenURL:twitter]) {
-        [[UIApplication sharedApplication] openURL:twitter options:@{} completionHandler:nil];
-    } else {
-        [[UIApplication sharedApplication] openURL:web options:@{} completionHandler:nil];
-    }
-}
-
--(void)github {
-	[[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"http://www.github.com/NoisyFlake"] options:@{} completionHandler:nil];
-}
-
 -(void)yt {
-	[[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"http://www.youtube.com/NoisyFlake"] options:@{} completionHandler:nil];
+	NSString *videoID = @"Dm8FfbfD5q0";
+	NSString *youtubeURLString = [NSString stringWithFormat:@"youtube://www.youtube.com/watch?v=%@", videoID];
+	NSURL *youtubeURL = [NSURL URLWithString:youtubeURLString];
+
+	if ([[UIApplication sharedApplication] canOpenURL:youtubeURL]) {
+		[[UIApplication sharedApplication] openURL:youtubeURL options:@{} completionHandler:nil];
+	} else {
+		// Open in Safari if YouTube app is not installed
+		NSURL *webURL = [NSURL URLWithString:[NSString stringWithFormat:@"https://www.youtube.com/watch?v=%@", videoID]];
+		[[UIApplication sharedApplication] openURL:webURL options:@{} completionHandler:nil];
+	}
 }
 
 -(void)setTweakEnabled:(id)value specifier:(PSSpecifier *)specifier {

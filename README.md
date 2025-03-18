@@ -1,45 +1,50 @@
-# dig3st, Notification Summary For Everyone
+# dig3st, Notification Summaries For Everyone
 
-## Project Structure
+<img src="assets/dig3st-hero-github.jpg">
 
-- `Sources/`: Contains the source code for the project.
-- `Tests/`: Contains the test cases for the project.
+## In Action
 
-## Requirements
-
-- Swift 5.0 or later
-- Xcode 11 or later
+<div align="center">
+    <img src="assets/dig3st-action.gif" width="400px">
+</div>
 
 ## Installation
 
-1. Clone the repository:
-   ```sh
-   git clone https://github.com/yourusername/Swift-test.git
-   ```
-2. Navigate to the project directory:
-   ```sh
-   cd Swift-test
-   ```
+### Covering everything about dig3st
 
-## Usage
+#### Tutorial part is just 4 minutes long
 
-To build and run the project, use the following command:
+<div align="center">
+    <a href="https://www.youtube.com/watch?v=u8pNxw2rBoE">
+        <img src="https://img.youtube.com/vi/u8pNxw2rBoE/0.jpg" width="500px" />
+    </a>
+</div>
 
-```sh
-swift build
-swift run
-```
+### Setup without a video tutorial
 
-To run the tests, use:
+Documentation is available on [this page](https://uncore.me/blog/dig3st--ai-notification-summaries-for-everyone)
 
-```sh
-swift test
-```
+## Compatibility
+
+- iOS 15
+- iOS 16
+- iOS 17
+- iOS 14 - Partial (not tested)
+
+Supports both rootful and rootless
 
 ## Contributing
 
-Contributions are welcome! Please open an issue or submit a pull request.
+Contributions are welcome! Dig3st certainly needs more features and improvements. If you have any ideas, feel free to open an issue or a pull request. You can check out known issues from [this page](https://uncore.me/blog/dig3st--ai-notification-summaries-for-everyone)
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+This project is licensed under a custom License. See the [LICENSE](LICENSE) file for details.
+
+## Donate
+
+Support this project from [here](https://uncore.me/donate), thank you!
+
+## Thanks
+
+Special thanks to [NoisyFlake](https://github.com/NoisyFlake) for Preferences UI [(Velvet2)](https://github.com/NoisyFlake/Velvet2) and [Ayden](https://github.com/aydenp) for [iNDT](https://github.com/aydenp/iNDT)
