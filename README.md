@@ -22,7 +22,7 @@
 
 ### Setup without a video tutorial
 
-Documentation is available on [this page](https://uncore.me/blog/dig3st--ai-notification-summaries-for-everyone)
+Documentation and link to my repo are available on [this page](https://uncore.me/blog/dig3st--ai-notification-summaries-for-everyone)
 
 ## Compatibility
 
