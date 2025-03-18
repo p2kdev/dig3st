@@ -15,7 +15,7 @@
 #### Tutorial part is just 4 minutes long
 
 <div align="center">
-    <a href="https://www.youtube.com/watch?v=u8pNxw2rBoE">
+    <a href="https://www.youtube.com/watch?v=Dm8FfbfD5q0">
         <img src="https://img.youtube.com/vi/Dm8FfbfD5q0/0.jpg" width="500px" />
     </a>
 </div>
