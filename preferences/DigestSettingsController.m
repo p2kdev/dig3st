@@ -52,17 +52,6 @@
 	return [self loadSpecifiersFromPlistName:plist target:self];
 }
 
--(void)twitter {
-	NSURL *twitter = [NSURL URLWithString:@"twitter://user?screen_name=uncor3_"];
-	NSURL *web = [NSURL URLWithString:@"https://x.com/uncor3_"];
-
-    if ([[UIApplication sharedApplication] canOpenURL:twitter]) {
-        [[UIApplication sharedApplication] openURL:twitter options:@{} completionHandler:nil];
-    } else {
-        [[UIApplication sharedApplication] openURL:web options:@{} completionHandler:nil];
-    }
-}
-
 -(void)yt {
 	NSString *videoID = @"Dm8FfbfD5q0";
 	NSString *youtubeURLString = [NSString stringWithFormat:@"youtube://www.youtube.com/watch?v=%@", videoID];
