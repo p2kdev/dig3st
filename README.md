@@ -16,7 +16,7 @@
 
 <div align="center">
     <a href="https://www.youtube.com/watch?v=u8pNxw2rBoE">
-        <img src="https://img.youtube.com/vi/u8pNxw2rBoE/0.jpg" width="500px" />
+        <img src="https://img.youtube.com/vi/Dm8FfbfD5q0/0.jpg" width="500px" />
     </a>
 </div>
 
