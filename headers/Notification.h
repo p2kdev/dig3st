@@ -1,6 +1,5 @@
 @interface NCNotificationRequest : NSObject
-@property (nonatomic, assign) BOOL dig3st;
-@property (nonatomic, retain) NSString * actualMessage;
+@property (nonatomic, retain) NSString * summarizedMessage;
 @property (nonatomic, retain) NSString *sectionIdentifier;
 @property (nonatomic, retain) NSObject *content;
 @end
@@ -17,6 +16,7 @@
 
 @interface NCNotificationSeamlessContentView : UIView
 - (NCNotificationShortLookViewController *)_viewControllerForAncestor;
+- (void)updateSummarizedText;
 @end
 
 @interface NCNotificationShortLookViewController (Digest)

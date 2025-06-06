@@ -1,4 +1,4 @@
-TARGET := iphone:clang:latest:15.0
+export TARGET = iphone:clang:13.7:13.0
 INSTALL_TARGET_PROCESSES = Preferences
 ARCHS = arm64 arm64e
 

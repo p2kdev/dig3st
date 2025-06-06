@@ -7,51 +7,50 @@ DigestPrefsManager *prefsManager;
 OpenAI *openai;
 
 %hook NCNotificationRequest
-%property (nonatomic, assign) BOOL dig3st;
-%property (nonatomic, retain) NSString * actualMessage;
+    %property (nonatomic, retain) NSString * summarizedMessage;
+    %property (nonatomic, retain) NSString * summarizationError;
 %end
-
-BOOL isOkToSummarize(NSString *sectionIdentifier) {
-    //ios has a lot of different types of notifications
-    //for example unlock notification for usb connection, etc
-    //the bundle identifier for that is com.apple.springboard.alert.SBUserNotificationAlert
-    //so skip those
-    if ([sectionIdentifier hasPrefix:@"com.apple"]) {
-        return NO;
-    }
-    return YES;
-}
-
 
 %hook NCNotificationSeamlessContentView
-%property (nonatomic, retain) UIImageView *imageView;
--(void)setSecondaryText:(NSString *)arg1 {
-    @try {
-        NCNotificationShortLookViewController *controller = [self _viewControllerForAncestor];
-        NCNotificationRequest *req = controller.notificationRequest;
-        //long view
-        if ([controller isKindOfClass:NSClassFromString(@"NCExpandedPlatterViewController")] && req.dig3st) {
-            %orig([req valueForKey:@"actualMessage"]);
-        }else{
-            %orig(arg1);
-        }
-    } @catch(NSException *e) {
-        NSLog(@"error: setting long view text %@", e) ;
-    }
-}
-%end
 
-%hook NCNotificationShortLookViewController
-%property (nonatomic, retain) UIImage *image;
--(void)viewDidLayoutSubviews  {
-    %orig;
-    @try{
-        NCNotificationShortLookView *view  = (NCNotificationShortLookView *)self.viewForPreview;
-        if (self.notificationRequest.dig3st) {
-            UIView *seamlessContentView =  [view valueForKey:@"notificationContentView"];
-            if (seamlessContentView) {
+    -(void)setSecondaryText:(NSString *)arg1 {
+        %orig(arg1);
+        [self updateSummarizedText];
+    }
+
+    -(void)_updateTextAttributesForSecondaryTextElement {
+        %orig;
+        [self updateSummarizedText];
+    }
+
+    // -(void)_configureSecondaryLabelIfNecessary {
+    //     %orig;
+    //     [self updateSummarizedText];
+    // }
+
+    // -(void)_configureSecondaryTextViewIfNecessary {
+    //     %orig;
+    //     [self updateSummarizedText];
+    // }     
+
+    // -(void)_configureSecondaryTextElementIfNecessary {
+    //     %orig;
+    //     [self updateSummarizedText];
+    // }    
+
+    %new
+    -(void)updateSummarizedText {
+        UILabel *secondaryTextElement = [self valueForKey:@"secondaryTextElement"];
+        if (!secondaryTextElement) {
+            return;
+        } 
+
+        NCNotificationShortLookViewController *controller = [self _viewControllerForAncestor];
+        NCNotificationRequest *req = controller.notificationRequest;        
+
+        if ([[self _viewControllerForAncestor] isKindOfClass:NSClassFromString(@"NCNotificationShortLookViewController")]) {
+            if (req.summarizedMessage) {
                 UIImage *image = [[UIImage alloc] initWithData:imgData scale:[[UIScreen mainScreen] scale]];
-                self.image = image;
 
                 NSTextAttachment *attachment = [[NSTextAttachment alloc] init];
                 attachment.image = image;
@@ -67,67 +66,69 @@ BOOL isOkToSummarize(NSString *sectionIdentifier) {
 
                 NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
                 NSDictionary *attributes = @{NSParagraphStyleAttributeName: paragraphStyle};
-                NSAttributedString *messageString = [[NSAttributedString alloc] initWithString:[self.notificationRequest.content valueForKey:@"message"] attributes:attributes];
+                NSAttributedString *messageString = [[NSAttributedString alloc] initWithString:req.summarizedMessage attributes:attributes];
                 
                 [attributedString appendAttributedString:messageString];
-                UILabel *message = [seamlessContentView valueForKey:@"secondaryTextElement"];
-                message.attributedText = attributedString;
+                secondaryTextElement.text = nil;
+                secondaryTextElement.attributedText = attributedString;   
+                secondaryTextElement.font = [UIFont italicSystemFontOfSize:secondaryTextElement.font.pointSize];                
+                return;
             }
-        } 
-    } @catch(NSException *e) {
-        NSLog(@"error: %@", e);
+        }
+
+        secondaryTextElement.attributedText = nil;
+        secondaryTextElement.text = [req.content valueForKey:@"message"];
+        secondaryTextElement.font = [UIFont systemFontOfSize:secondaryTextElement.font.pointSize];                                    
     }
-}
 %end
 
 %hook NCNotificationDispatcher
--(void)postNotificationWithRequest:(NCNotificationRequest*)req {
-    @try {
-        DigestLogger *logger = [NSClassFromString(@"DigestLogger") sharedInstance];
-        [logger log:[NSString stringWithFormat:@"Notification received bundle identifier is %@",req.sectionIdentifier] level:LOGLEVEL_VERBOSE];
-        NSString *textContent = [req.content valueForKey:@"message"];
-        NSInteger minChars = [[prefsManager objectForKey:@"minChars"] integerValue];
+    -(void)postNotificationWithRequest:(NCNotificationRequest*)req {
+        @try {
+            DigestLogger *logger = [NSClassFromString(@"DigestLogger") sharedInstance];
+            [logger log:[NSString stringWithFormat:@"Notification received bundle identifier is %@",req.sectionIdentifier] level:LOGLEVEL_VERBOSE];
+            NSString *textContent = [req.content valueForKey:@"message"];
+            [req setValue:nil forKey:@"summarizedMessage"];
+            [req setValue:nil forKey:@"summarizationError"];
+            NSInteger minChars = [[prefsManager objectForKey:@"minChars"] integerValue];
 
-        BOOL contentTooShort = textContent ? textContent.length < minChars  : YES;
-        if (contentTooShort) {
-            [logger log:@"Skipping summarization, content is too short" level:LOGLEVEL_WARNING];
-            [req setValue:@(NO) forKey:@"dig3st"];
-            return %orig;        
-        }
+            BOOL contentTooShort = textContent ? textContent.length < minChars  : YES;
+            if (contentTooShort) {
+                [req setValue:@"Content short" forKey:@"summarizationError"];
+                [logger log:@"Skipping summarization, content is too short" level:LOGLEVEL_WARNING];
+                return %orig;        
+            }
 
-        //checks if user set anything for this bundle identifier
-        id _enabled = [prefsManager objectForKey:req.sectionIdentifier];
-        //if not then use isOkToSummarize else use the user setting
-        BOOL enabled = _enabled != nil ? [_enabled boolValue] : isOkToSummarize(req.sectionIdentifier);
+            //checks if user set anything for this bundle identifier
+            id _enabled = [prefsManager objectForKey:req.sectionIdentifier];
+            //if not then use isOkToSummarize else use the user setting
+            BOOL enabled = _enabled == nil ? YES : [_enabled boolValue];
 
-        [logger log:[NSString stringWithFormat:@"Will summarize notification with bundle identifier %@ ? %@",req.sectionIdentifier,enabled ? @"yes" : @"no"] level:LOGLEVEL_INFO];
+            [logger log:[NSString stringWithFormat:@"Will summarize notification with bundle identifier %@ ? %@",req.sectionIdentifier,enabled ? @"yes" : @"no"] level:LOGLEVEL_INFO];
 
-        if (enabled) {
-            ChatQuery *query = [[ChatQuery alloc] initWithPrompt:textContent];
-            [logger log:[NSString stringWithFormat:@"ChatQuery has been created with prompt %@",textContent] level:LOGLEVEL_VERBOSE];
-            [openai summarize:query completion:^(NSString *summary) {
-                if (summary.length > 0) {
-                    [logger log:[NSString stringWithFormat:@"Summary: %@",summary] level:LOGLEVEL_INFO];
-                    [req setValue:@(YES) forKey:@"dig3st"];
-                    [req setValue:[req.content valueForKey:@"message"] forKey:@"actualMessage"];
-                    [req.content setValue:summary forKey:@"message"];
+            if (enabled) {
+                ChatQuery *query = [[ChatQuery alloc] initWithPrompt:textContent];
+                [logger log:[NSString stringWithFormat:@"ChatQuery has been created with prompt %@",textContent] level:LOGLEVEL_VERBOSE];
+                [openai summarize:query completion:^(NSString *summary) {
+                    if (summary.length > 0) {
+                        [logger log:[NSString stringWithFormat:@"Summary: %@",summary] level:LOGLEVEL_INFO];
+                        [req setValue:summary forKey:@"summarizedMessage"];                                                
+                    }
+                    else
+                        [req setValue:@"Summary response empty" forKey:@"summarizationError"];
                     %orig(req);
-                } else {
-                    [req setValue:@(NO) forKey:@"dig3st"];
-                    %orig(req);
-                }
-            }];
-        } else {
-            [logger log:@"Skipping summarization" level:LOGLEVEL_INFO];
-            [req setValue:@(NO) forKey:@"dig3st"];
-            %orig(req);
+                }];
+            } else {
+                [req setValue:@"Summarized not Enabled" forKey:@"summarizationError"];
+                [logger log:@"Skipping summarization" level:LOGLEVEL_INFO];
+                %orig(req);
+            }
+        } @catch (NSException *e) { 
+            [req setValue:@"AI Response Error" forKey:@"summarizationError"];
+            NSLog(@"exception while fetching ai response : %@", e);
+            %orig;
         }
-    } @catch (NSException *e) { 
-        [req setValue:@(NO) forKey:@"dig3st"];
-        NSLog(@"exception while fetching ai response : %@", e);
-        %orig;
     }
-}
 %end
 
 %ctor {

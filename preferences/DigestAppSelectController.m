@@ -1,13 +1,6 @@
 // https://github.com/NoisyFlake/Velvet2/blob/master/preferences/Velvet2AppSelectController.m
 #import "../headers/HeadersPreferences.h"
 
-NSString* isOkToSummarize(NSString *sectionIdentifier) {
-    if ([sectionIdentifier hasPrefix:@"com.apple"]) {
-        return @"0";
-    }
-    return @"1";
-}
-
 @implementation DigestAppSelectController
 
 - (NSArray *)specifiers {
@@ -66,7 +59,7 @@ NSString* isOkToSummarize(NSString *sectionIdentifier) {
 	DigestPrefsManager *manager = [NSClassFromString(@"DigestPrefsManager") sharedInstance];
 	NSString *value = [manager objectForKey:specifier.properties[@"digestKey"]];
 	if (value == nil) {
-		value = isOkToSummarize(specifier.properties[@"digestKey"]);
+		value = @"1";
 	}
 	return value;
 }
