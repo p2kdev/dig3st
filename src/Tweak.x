@@ -76,9 +76,9 @@ OpenAI *openai;
             }
         }
 
-        secondaryTextElement.attributedText = nil;
-        secondaryTextElement.text = [req.content valueForKey:@"message"];
-        secondaryTextElement.font = [UIFont systemFontOfSize:secondaryTextElement.font.pointSize];                                    
+        // secondaryTextElement.attributedText = nil;
+        // secondaryTextElement.text = [req.content valueForKey:@"message"];
+        // secondaryTextElement.font = [UIFont systemFontOfSize:secondaryTextElement.font.pointSize];                                    
     }
 %end
 
