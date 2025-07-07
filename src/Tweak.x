@@ -50,7 +50,7 @@ OpenAI *openai;
 
         if ([[self _viewControllerForAncestor] isKindOfClass:NSClassFromString(@"NCNotificationShortLookViewController")]) {
             if (req.summarizedMessage) {
-                UIImage *image = [[[UIImage alloc] initWithData:imgData scale:[[UIScreen mainScreen] scale]] imageWithTintColor:secondaryTextElement.textColor];
+                UIImage *image = [[[UIImage alloc] initWithData:imgData scale:[[UIScreen mainScreen] scale]] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
 
                 NSTextAttachment *attachment = [[NSTextAttachment alloc] init];
                 attachment.image = image;
